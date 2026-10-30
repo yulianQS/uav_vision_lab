@@ -1,0 +1,14 @@
+/**:
+  ros__parameters:
+    use_sim_time: true
+    family: '36h11'
+    # Physical outer edge of black border; white margin is excluded.
+    size: 0.8
+    max_hamming: 0
+    detector:
+      threads: 2
+      decimate: 1.0
+      blur: 0.0
+      refine: true
+      sharpening: 0.25
+      debug: false

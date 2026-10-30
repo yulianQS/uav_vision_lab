@@ -1,0 +1,26 @@
+{
+  "repository": "https://github.com/AprilRobotics/apriltag-imgs",
+  "retrieved_on": "2026-10-30",
+  "files": [
+    {
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/AprilRobotics/apriltag-imgs/master/LICENSE",
+      "sha256": "1dd29793f165e8de1bc21b0c894d63c0872831c203cc517d82c6851b3eb108c6"
+    },
+    {
+      "file": "tag36_11_00000.png",
+      "url": "https://raw.githubusercontent.com/AprilRobotics/apriltag-imgs/master/tag36h11/tag36_11_00000.png",
+      "sha256": "48d811f770fc3595aaf5650a5fd8007843e7fece1f8fdcb94e0f113b4c9ed0c6"
+    },
+    {
+      "file": "tag36_11_00001.png",
+      "url": "https://raw.githubusercontent.com/AprilRobotics/apriltag-imgs/master/tag36h11/tag36_11_00001.png",
+      "sha256": "2b30c316b3f8f32d80ba4e83feee8471c41a04aeba75bf1a23f1cf9c990394ce"
+    },
+    {
+      "file": "tag36_11_00002.png",
+      "url": "https://raw.githubusercontent.com/AprilRobotics/apriltag-imgs/master/tag36h11/tag36_11_00002.png",
+      "sha256": "56c1561f55d075bc256cc5dddd44ca067d979095d9147f423b6672a4cf144957"
+    }
+  ]
+}
