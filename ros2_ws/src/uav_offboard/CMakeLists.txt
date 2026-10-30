@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(px4_msgs REQUIRED)
+find_package(tf2_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -34,5 +35,16 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+add_executable(tag_reader src/tag_reader.cpp)
+
+ament_target_dependencies(tag_reader
+  rclcpp
+  tf2_msgs
+)
+
+install(TARGETS
+  tag_reader
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_package()
