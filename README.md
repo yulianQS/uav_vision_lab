@@ -5,7 +5,8 @@
 ## 目录
 
 - `PX4-Autopilot/`：官方 PX4 子模块，固定在本实验使用的提交版本。
-- `ros2_ws/src/`：后续 ROS 2 感知和控制节点。
+- `ros2_ws/src/`：PX4 消息定义，以及后续 ROS 2 感知和控制节点。
+- `dependencies/`：依赖清单和 Micro XRCE-DDS Agent 源码子模块。
 - `simulation/`：AprilTag 场景、检测配置和启动脚本。
 
 ## 获取完整工程
@@ -20,7 +21,7 @@ git clone --recurse-submodules <本仓库地址>
 git submodule update --init --recursive
 ```
 
-完整安装与运行步骤见 [仿真实验说明](simulation/README.md)。目前已完成场景文件和脚本的基础检查，实时检测与闭环动作尚未验证。
+依赖安装与恢复步骤见 [开发环境与依赖](dependencies/环境依赖.md)，运行步骤见 [仿真实验说明](simulation/README.md)。已验证相机图像和 Tag 检测，闭环动作尚未验证。
 
 ## 提交约定
 

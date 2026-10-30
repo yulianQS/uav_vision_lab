@@ -1,0 +1,17 @@
+# 2026-10-30 本机已安装版本，供对比；非 apt 锁文件
+build-essential	12.9ubuntu3
+cmake	3.22.1-1ubuntu1.22.04.2
+git	1:2.34.1-1ubuntu1.18
+gz-harmonic	1.0.0-1~jammy
+libgz-sim8	8.15.0-1~jammy
+ninja-build	1.10.1-1
+python3-colcon-common-extensions	0.3.0-100
+python3-pil	9.0.1-1ubuntu0.5
+python3-pip	22.0.2+dfsg-1ubuntu0.7
+python3-rosdep	0.27.0-1
+ros-humble-apriltag-msgs	2.0.2-1jammy.20260907.213637
+ros-humble-apriltag-ros	3.4.0-1jammy.20260908.012018
+ros-humble-desktop	0.10.0-1jammy.20260908.101832
+ros-humble-ros-base	0.10.0-1jammy.20260908.101203
+ros-humble-ros-gzharmonic-bridge	0.244.12-3jammy
+ros-humble-ros-gzharmonic-interfaces	0.244.12-3jammy

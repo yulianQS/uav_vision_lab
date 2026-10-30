@@ -35,7 +35,7 @@ simulation/
 ## 当前依赖检查
 
 2026-10-30 检查结果：Ubuntu 22.04.5、ROS 2 Humble、PX4 v1.16.0、Gazebo Sim 8.15.0；
-`apriltag_ros/apriltag_node`、`MicroXRCEAgent` 和 PX4 SITL 可执行文件已存在；`ros_gz_bridge` 未找到。
+`apriltag_ros/apriltag_node`、`MicroXRCEAgent`、`ros_gz_bridge` 和 PX4 SITL 可执行文件已存在。
 
 当前 Humble + Harmonic 组合的桥接包来自 Gazebo 软件源：
 
@@ -44,19 +44,29 @@ sudo apt update
 sudo apt install ros-humble-ros-gzharmonic-bridge
 ```
 
-本机 apt 已能查到这个包。Humble 默认的 `ros-humble-ros-gz-bridge` 通常对应 Fortress；
-本实验要用与 Harmonic 匹配的桥接版本。这里未执行系统包安装。
+本机现已安装这个包。Humble 默认的 `ros-humble-ros-gz-bridge` 通常对应 Fortress；
+本实验要用与 Harmonic 匹配的桥接版本。
 
 ## 启动顺序（各开一个终端）
 
 在项目根目录 `/home/qs/qs/uav_vision_lab` 执行下面的命令。
 启动前关闭其他 PX4/Gazebo 仿真，避免 PX4 连接到其他世界。
 
-1. 启动场景（可以追加 `-s --headless-rendering` 只启动服务器）：
+1. 启动场景：
 
    ```bash
    ./simulation/scripts/start_world.sh
    ```
+
+在本机虚拟机中，默认显卡只支持 OpenGL 2.1。若 Gazebo 相机渲染报 OpenGL 3.3 错误，
+可在桌面会话中启动仅服务器模式并启用软件渲染：
+
+   ```bash
+   LIBGL_ALWAYS_SOFTWARE=1 ./simulation/scripts/start_world.sh -s
+   ```
+
+本次检查在 X11 `DISPLAY=:0` 下使用此方式成功；桌面终端通常已设置 `DISPLAY`。软件渲染帧率较低。
+`--headless-rendering` 在本机仍会选择不兼容的 EGL 设备，不适合本机当前配置。
 
 2. 启动 PX4 并生成前视相机飞机：
 
@@ -86,6 +96,8 @@ sudo apt install ros-humble-ros-gzharmonic-bridge
 
 PX4 和世界使用 standalone 方式连接，无需往 PX4 的 worlds 目录复制文件。
 脚本默认使用相邻的 `PX4-Autopilot`；可通过 `PX4_DIR` 指定其他 checkout。
+如果现有 CMake 缓存属于其他路径，脚本会提示并使用当前目录已有的 SITL 二进制文件，
+避免错误地重建旧路径。需要重新编译 PX4 改动时，请先在当前 checkout 重新配置构建。
 检测脚本把理想、无畸变的 Gazebo 原图接到 `image_rect`；接真实相机时需要先校正图像。
 
 ## 检查图像和检测结果
@@ -148,6 +160,7 @@ ROS 控制侧需要 `px4_msgs` 与 PX4 v1.16 消息定义兼容；优先核对 `
 
 ## 验证范围
 
-已下载官方 Tag 图片并生成世界；`gz sdf -k simulation/worlds/tag_range.sdf` 返回 `Valid.`；
-Shell 脚本已通过语法检查。尚未验证飞机相机渲染、ROS 图像桥接、Tag 实时检测和闭环动作；
-当前缺少桥接包，不能把这套基础文件视为已跑通的完整闭环系统。
+2026-10-30 实际启动 Gazebo 场景、PX4 前视飞机、ROS 图像桥接和 AprilTag 节点；
+已识别 ID 0、1、2，并通过 TF 得到 ID 0 前向距离约 7.85 m。Micro XRCE-DDS Agent 与 PX4 建立会话。
+虚拟机中使用软件渲染，测试图像约 1 Hz，偶有图像和内参同步警告；
+尚未测试起飞、Offboard 指令和视觉闭环动作。SDF 和 Shell 脚本基础检查通过。
