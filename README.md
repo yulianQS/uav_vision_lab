@@ -21,7 +21,7 @@ git clone --recurse-submodules <本仓库地址>
 git submodule update --init --recursive
 ```
 
-依赖安装与恢复步骤见 [开发环境与依赖](dependencies/环境依赖.md)，运行步骤见 [仿真实验说明](simulation/README.md)。已验证相机图像和 Tag 检测，闭环动作尚未验证。
+依赖安装与恢复步骤见 [开发环境与依赖](dependencies/环境依赖.md)，运行步骤见 [仿真实验说明](simulation/README.md)。已验证相机图像、Tag 检测和无需地面站的 SITL Offboard 自动起飞；视觉闭环动作尚未验证。
 
 ## 提交约定
 

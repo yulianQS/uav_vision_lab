@@ -23,6 +23,10 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+add_executable(offboard_takeoff src/takeoff.cpp)
+ament_target_dependencies(offboard_takeoff rclcpp px4_msgs)
+install(TARGETS offboard_takeoff DESTINATION lib/${PROJECT_NAME})
+
 add_executable(move_drone src/move.cpp)
 
 ament_target_dependencies(move_drone
