@@ -29,6 +29,13 @@ install(TARGETS offboard_takeoff DESTINATION lib/${PROJECT_NAME})
 
 add_executable(move_drone src/move.cpp)
 
+add_executable(keyboard_test src/keyboard_test.cpp)
+
+install(TARGETS
+  keyboard_test
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_target_dependencies(move_drone
   rclcpp
   px4_msgs
