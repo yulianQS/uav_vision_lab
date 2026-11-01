@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(px4_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
 
 if(BUILD_TESTING)
@@ -28,31 +29,41 @@ ament_target_dependencies(offboard_takeoff rclcpp px4_msgs)
 install(TARGETS offboard_takeoff DESTINATION lib/${PROJECT_NAME})
 
 add_executable(move_drone src/move.cpp)
-
-add_executable(keyboard_test src/keyboard_test.cpp)
-
 install(TARGETS
-  keyboard_test
+  move_drone
   DESTINATION lib/${PROJECT_NAME}
 )
-
 ament_target_dependencies(move_drone
   rclcpp
   px4_msgs
 )
 
+add_executable(keyboard_test src/keyboard_test.cpp)
 install(TARGETS
-  move_drone
+  keyboard_test
   DESTINATION lib/${PROJECT_NAME}
+)
+ament_target_dependencies(keyboard_test
+  rclcpp
+  geometry_msgs
+)
+
+add_executable(velocity_listener src/velocity_listener.cpp)
+install(TARGETS
+  velocity_listener
+  DESTINATION lib/${PROJECT_NAME}
+)
+ament_target_dependencies(velocity_listener
+  rclcpp
+  geometry_msgs
+  px4_msgs
 )
 
 add_executable(tag_reader src/tag_reader.cpp)
-
 ament_target_dependencies(tag_reader
   rclcpp
   tf2_msgs
 )
-
 install(TARGETS
   tag_reader
   DESTINATION lib/${PROJECT_NAME}
