@@ -5,7 +5,8 @@
 
 #include <cmath>
 #include <px4_msgs/msg/vehicle_attitude.hpp>
-
+#include <geometry_msgs/msg/vector3.hpp>
+#include <std_msgs/msg/bool.hpp>
 
 class VelocityListener : public rclcpp::Node
 {
@@ -35,8 +36,12 @@ public:
                     this->attitude_callback(message);
                 }
             );
-        watchdog_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), [this]() { this->check_timeout(); });
+                watchdog_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), [this]() { this->check_timeout(); });
+                control_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), [this]() { this->update_control(); });
         RCLCPP_INFO(this->get_logger(),"速度监听节点已启动，等待键盘消息。");
+
+        ned_velocity_publisher_ =
+            this->create_publisher<geometry_msgs::msg::Vector3>("/practice/ned_velocity", 10);
     }
 
 private:
@@ -53,7 +58,9 @@ private:
         const auto now = std::chrono::steady_clock::now();
 
         if (!has_attitude_ || now - last_attitude_time_ > std::chrono::milliseconds(500)) {
-            RCLCPP_WARN(this->get_logger(), "姿态尚未收到或已经过期，暂不计算 NED 速度。");
+            RCLCPP_WARN(this->get_logger(), 
+            *this->get_clock(), 2000, 
+            "姿态尚未收到或已经过期，暂不计算 NED 速度。");
             return;
         }
 
@@ -131,12 +138,49 @@ private:
         RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 2000, "偏航角 yaw：%.3f 弧度", yaw_);
   
     }
+    //模拟控制函数
+    void update_control()
+    {
+        const auto now = std::chrono::steady_clock::now();
+
+        const bool keyboard_fresh = has_received_message_ && now - last_message_time_ <= std::chrono::milliseconds(1500);
+
+        const bool attitude_fresh = has_attitude_ && now - last_attitude_time_ <= std::chrono::milliseconds(500);
+
+        double north = 0.0;
+        double east = 0.0;
+        double down = 0.0;
+
+        if (keyboard_fresh && attitude_fresh) {
+            north = target_vx_ * std::cos(yaw_) - target_vy_ * std::sin(yaw_);
+            east = target_vx_ * std::sin(yaw_) + target_vy_ * std::cos(yaw_);
+            down = target_vz_;
+        }
+        else if (keyboard_fresh && !attitude_fresh) {
+            RCLCPP_WARN_THROTTLE(
+                this->get_logger(),
+                *this->get_clock(),
+                2000,
+                "已收到键盘速度，但姿态尚未收到或已经过期。");
+        }
+
+        geometry_msgs::msg::Vector3 velocity_message;
+        velocity_message.x = north;
+        velocity_message.y = east;
+        velocity_message.z = down;
+        ned_velocity_publisher_->publish(velocity_message);
+
+        RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "模拟输出 NED：北=%.2f，东=%.2f，下=%.2f m/s", north, east, down);
+    }
 
     // 把订阅者保存为类的成员。
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr subscription_;
     rclcpp::Subscription<px4_msgs::msg::VehicleAttitude>::SharedPtr attitude_subscription_;
-
+    rclcpp::Publisher<geometry_msgs::msg::Vector3>::SharedPtr ned_velocity_publisher_;
     rclcpp::TimerBase::SharedPtr watchdog_timer_;
+
+    rclcpp::TimerBase::SharedPtr control_timer_;
+
     std::chrono::steady_clock::time_point last_message_time_;
     bool has_received_message_ = false;
     bool timeout_reported_ = false;
