@@ -1,3 +1,4 @@
+
 #include <chrono>
 #include <memory>
 
@@ -47,6 +48,7 @@ private:
     rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr tf_sub_;
 };
 
+// 程序入口：初始化 ROS 2，运行节点，退出时释放资源。
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);

@@ -3,7 +3,7 @@
 
 #pragma once
 
-namespace uav_offborard
+namespace uav_offboard
 {
  struct NedVelocity
  {

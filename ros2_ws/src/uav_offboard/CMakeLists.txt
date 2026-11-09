@@ -48,7 +48,8 @@ ament_target_dependencies(keyboard_test
   geometry_msgs
 )
 
-add_executable(velocity_listener src/velocity_listener.cpp)
+add_executable(velocity_listener src/velocity_listener.cpp src/velocity_transform.cpp)
+target_include_directories(velocity_listener PRIVATE include)
 install(TARGETS
   velocity_listener
   DESTINATION lib/${PROJECT_NAME}

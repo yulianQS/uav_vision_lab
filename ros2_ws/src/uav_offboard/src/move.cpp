@@ -1,3 +1,4 @@
+
 #include <array>
 #include <chrono>
 #include <cmath>
@@ -67,6 +68,7 @@ public:
     }
 
 private:
+    // 依次等待状态、预发送目标、请求 Offboard，再移动并保持位置。
     enum class Stage {
         WAITING,
         PRESTREAM,
@@ -286,6 +288,7 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
 };
 
+// 程序入口：初始化 ROS 2，运行节点，退出时释放资源。
 int main(int argc, char *argv[])
 {
     rclcpp::init(argc, argv);

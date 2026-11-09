@@ -5,10 +5,9 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 
-int main(int argc, char *argv[])
+// 读取键盘并发布机体系速度；终端退出前恢复原来的输入设置。
+int run_keyboard_test()
 {
-    // 初始化 ROS 2。
-    rclcpp::init(argc, argv);
 
     // 创建一个名为 keyboard_test 的节点。
     auto node = rclcpp::Node::make_shared("keyboard_test");
@@ -142,7 +141,14 @@ int main(int argc, char *argv[])
     // 恢复终端设置。
     tcsetattr(STDIN_FILENO, TCSANOW, &old_settings);
 
-    rclcpp::shutdown();
-
     return 0;
+}
+
+// 程序入口管理 ROS 2 的初始化与关闭。
+int main(int argc, char *argv[])
+{
+    rclcpp::init(argc, argv);
+    const int result = run_keyboard_test();
+    rclcpp::shutdown();
+    return result;
 }

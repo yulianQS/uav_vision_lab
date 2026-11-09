@@ -1,3 +1,4 @@
+
 #include <array>
 #include <chrono>
 #include <cmath>
@@ -55,11 +56,13 @@ private:
   using Clock = std::chrono::steady_clock;
   using Status = px4_msgs::msg::VehicleStatus;
   using Command = px4_msgs::msg::VehicleCommand;
+  // 起飞顺序：等待有效状态、预发送目标、切换模式、解锁、爬升。
   enum class Stage { WAIT, PRESTREAM, MODE, ARM, CLIMB, STOP };
   uint64_t timestamp() { return static_cast<uint64_t>(get_clock()->now().nanoseconds() / 1000); }
   void fail(const char *message) {
     RCLCPP_ERROR(get_logger(), "%s", message); stage_ = Stage::STOP; timer_->cancel();
   }
+  // 持续发送 Offboard 心跳和位置目标；未使用的控制量设为 NaN。
   void publish(const std::array<float, 3> &point) {
     const auto nan = std::numeric_limits<float>::quiet_NaN();
     px4_msgs::msg::OffboardControlMode mode{};
@@ -74,6 +77,7 @@ private:
     cmd.target_system = 1; cmd.target_component = 1; cmd.source_system = 1; cmd.source_component = 1;
     cmd.from_external = true; command_pub_->publish(cmd);
   }
+  // 定时推进状态机；状态失效时停止心跳，由 PX4 的失联保护接管。
   void update() {
     const auto now = Clock::now();
     if (!have_position_ || !have_status_) return;
@@ -152,6 +156,8 @@ private:
   rclcpp::Publisher<Command>::SharedPtr command_pub_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
+
+// 程序入口：初始化 ROS 2，运行节点，退出时释放资源。
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
   try { rclcpp::spin(std::make_shared<OffboardTakeoff>()); }
