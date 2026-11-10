@@ -11,6 +11,9 @@ find_package(rclcpp REQUIRED)
 find_package(px4_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(uav_interfaces REQUIRED)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -58,6 +61,8 @@ ament_target_dependencies(velocity_listener
   rclcpp
   geometry_msgs
   px4_msgs
+  std_msgs
+  uav_interfaces
 )
 
 add_executable(tag_reader src/tag_reader.cpp)
@@ -69,5 +74,11 @@ install(TARGETS
   tag_reader
   DESTINATION lib/${PROJECT_NAME}
 )
+
+add_executable(velocity_monitor src/velocity_monitor.cpp)
+ament_target_dependencies(velocity_monitor 
+rclcpp 
+uav_interfaces)
+install(TARGETS velocity_monitor DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

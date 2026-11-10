@@ -7,6 +7,8 @@
 #include <px4_msgs/msg/vehicle_attitude.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 #include "uav_offboard/velocity_transform.hpp"
+#include <std_msgs/msg/bool.hpp>
+#include <uav_interfaces/msg/velocity_status.hpp>
 
 class VelocityListener : public rclcpp::Node
 {
@@ -41,13 +43,29 @@ public:
         control_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), [this]() { this->update_control(); });
         RCLCPP_INFO(this->get_logger(),"速度监听节点已启动，等待键盘消息。");
 
+        //发布者创建
+        velocity_valid_publisher_ = 
+            this->create_publisher<std_msgs::msg::Bool>("/practice/ned_velocity_valid", 10);
         ned_velocity_publisher_ =
             this->create_publisher<geometry_msgs::msg::Vector3>("/practice/ned_velocity", 10);
-    }
+        velocity_status_publisher_ =
+            this->create_publisher<uav_interfaces::msg::VelocityStatus>("/practice/velocity_status", 10);
+    
+        }
 
 private:
     void velocity_callback(const geometry_msgs::msg::Twist::SharedPtr message)
     {
+        if (!std::isfinite(message->linear.x) || !std::isfinite(message->linear.y) || !std::isfinite(message->linear.z)) 
+        {
+            target_vx_ = 0.0;
+            target_vy_ = 0.0;
+            target_vz_ = 0.0;
+            has_received_message_ = false;
+
+            RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 2000,"收到非有限速度，已清除内部目标。");
+            return;
+        }
         last_message_time_ = std::chrono::steady_clock::now();
         has_received_message_ = true;
         timeout_reported_ = false;
@@ -172,15 +190,31 @@ private:
         velocity_message.z = down;
         ned_velocity_publisher_->publish(velocity_message);
 
+        std_msgs::msg::Bool valid_message;
+        valid_message.data = keyboard_fresh && attitude_fresh;
+        velocity_valid_publisher_->publish(valid_message);
+
+
+        uav_interfaces::msg::VelocityStatus status_message;
+        status_message.header.stamp = this->get_clock()->now();
+        status_message.header.frame_id = "local_ned";
+        status_message.velocity = velocity_message;
+        status_message.input_fresh = valid_message.data;
+        velocity_status_publisher_->publish(status_message);
+
+
         RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "模拟输出 NED：北=%.2f，东=%.2f，下=%.2f m/s", north, east, down);
     }
 
     // 把订阅者保存为类的成员。
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr subscription_;
     rclcpp::Subscription<px4_msgs::msg::VehicleAttitude>::SharedPtr attitude_subscription_;
+    
     rclcpp::Publisher<geometry_msgs::msg::Vector3>::SharedPtr ned_velocity_publisher_;
+    rclcpp::Publisher<uav_interfaces::msg::VelocityStatus>::SharedPtr velocity_status_publisher_;
+    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr velocity_valid_publisher_;
+    
     rclcpp::TimerBase::SharedPtr watchdog_timer_;
-
     rclcpp::TimerBase::SharedPtr control_timer_;
 
     std::chrono::steady_clock::time_point last_message_time_;
